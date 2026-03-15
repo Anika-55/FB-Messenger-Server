@@ -7,10 +7,19 @@ export async function getMessages(req: Request, res: Response) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const conversationId = req.params.conversationId;
-  const page = req.query.page ? Number(req.query.page) : undefined;
-  const limit = req.query.limit ? Number(req.query.limit) : undefined;
-  const cursor = req.query.cursor ? String(req.query.cursor) : undefined;
+  const conversationId = Array.isArray(req.params.conversationId)
+    ? req.params.conversationId[0]
+    : req.params.conversationId;
+  if (!conversationId) {
+    return res.status(400).json({ message: "conversationId is required" });
+  }
+
+  const pageParam = Array.isArray(req.query.page) ? req.query.page[0] : req.query.page;
+  const limitParam = Array.isArray(req.query.limit) ? req.query.limit[0] : req.query.limit;
+  const cursorParam = Array.isArray(req.query.cursor) ? req.query.cursor[0] : req.query.cursor;
+  const page = pageParam ? Number(pageParam) : undefined;
+  const limit = limitParam ? Number(limitParam) : undefined;
+  const cursor = cursorParam ? String(cursorParam) : undefined;
 
   try {
     const result = await getMessagesForConversation({
@@ -72,7 +81,10 @@ export async function removeMessage(req: Request, res: Response) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const messageId = req.params.id;
+  const messageId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  if (!messageId) {
+    return res.status(400).json({ message: "message id is required" });
+  }
 
   try {
     const message = await deleteMessage(messageId, userId);

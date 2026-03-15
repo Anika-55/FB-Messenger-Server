@@ -43,7 +43,10 @@ export async function getConversation(req: Request, res: Response) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const conversationId = req.params.id;
+  const conversationId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  if (!conversationId) {
+    return res.status(400).json({ message: "conversation id is required" });
+  }
   const conversation = await getConversationById(conversationId, userId);
 
   if (!conversation) {
@@ -59,7 +62,10 @@ export async function markSeen(req: Request, res: Response) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const conversationId = req.params.id;
+  const conversationId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  if (!conversationId) {
+    return res.status(400).json({ message: "conversation id is required" });
+  }
   const conversation = await markConversationSeen(conversationId, userId);
 
   if (!conversation) {
@@ -75,7 +81,10 @@ export async function setAvatar(req: Request, res: Response) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const conversationId = req.params.id;
+  const conversationId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  if (!conversationId) {
+    return res.status(400).json({ message: "conversation id is required" });
+  }
   const { avatar } = req.body as { avatar?: string };
 
   if (!avatar || !avatar.trim()) {
@@ -96,7 +105,10 @@ export async function leave(req: Request, res: Response) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const conversationId = req.params.id;
+  const conversationId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  if (!conversationId) {
+    return res.status(400).json({ message: "conversation id is required" });
+  }
   const conversation = await leaveConversation(conversationId, userId);
 
   if (!conversation) {

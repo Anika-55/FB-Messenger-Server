@@ -13,7 +13,10 @@ export async function getUsers(_req: Request, res: Response) {
 }
 
 export async function getUser(req: Request, res: Response) {
-  const { id } = req.params;
+  const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  if (!id) {
+    return res.status(400).json({ message: "user id is required" });
+  }
   const user = await getUserById(id);
 
   if (!user) {
