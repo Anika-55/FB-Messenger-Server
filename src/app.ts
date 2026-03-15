@@ -11,10 +11,11 @@ const allowedOrigins = new Set<string>([
   "http://localhost:5173",
   "http://localhost:3000"
 ]);
+const vercelPreviewOrigin = /^https:\/\/facebook-messenger-demo-[a-z0-9-]+\.vercel\.app$/i;
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.has(origin)) {
+    if (!origin || allowedOrigins.has(origin) || vercelPreviewOrigin.test(origin)) {
       return callback(null, true);
     }
     return callback(new Error("Not allowed by CORS"));
