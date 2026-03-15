@@ -7,20 +7,25 @@ const app = express();
 
 const allowedOrigins = new Set<string>([
   "https://facebook-messenger-demo.vercel.app",
+  "https://facebook-messenger-demo-e1pn.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000"
 ]);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.has(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("Not allowed by CORS"));
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.has(origin)) {
+      return callback(null, true);
     }
-  })
-);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 
 app.get("/", (_req, res) => {
