@@ -1,0 +1,71 @@
+// Prisma schema for MongoDB
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  avatar    String?
+  email     String          @unique
+  password  String
+  online    Boolean         @default(false)
+  createdAt DateTime        @default(now())
+
+  conversations ConversationParticipant[]
+  messages      Message[]
+}
+
+model Conversation {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String?
+  avatar       String?
+  participants ConversationParticipant[]
+  messages     Message[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model ConversationParticipant {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  userId         String       @db.ObjectId
+  joinedAt       DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  senderId       String       @db.ObjectId
+  text           String?
+  imageUrl       String?
+  replyToId      String?      @db.ObjectId
+  forwardedFromId String?     @db.ObjectId
+  status         MessageStatus @default(sent)
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation(fields: [senderId], references: [id])
+  replyTo        Message?     @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies        Message[]    @relation("MessageReplies")
+  forwardedFrom  Message?     @relation("MessageForwards", fields: [forwardedFromId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  forwards       Message[]    @relation("MessageForwards")
+}
+
+enum MessageStatus {
+  sent
+  delivered
+  seen
+}
